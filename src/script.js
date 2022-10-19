@@ -2,11 +2,10 @@ import './style.css'
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import * as dat from 'dat.gui'
-import webGPUProperties from "three/examples/jsm/renderers/webgpu/WebGPUProperties";
-import {Mesh} from "three";
+import {scramble, sRotate} from "./solver";
 
 // Debug
-const gui = new dat.GUI()
+
 
 // Canvas
 const canvas = document.querySelector('canvas.webgl')
@@ -33,12 +32,12 @@ orangeMat.color = new THREE.Color(0xff6600)
 
 // Mesh
 
-const whitePlane = new THREE.Mesh(geometry,whiteMat)
-const redPlane = new THREE.Mesh(geometry,redMat)
-const orangePlane = new THREE.Mesh(geometry,orangeMat)
-const bluePlane = new THREE.Mesh(geometry,blueMat)
-const yellowPlane = new THREE.Mesh(geometry,yellowMat)
-const greenPlane = new THREE.Mesh(geometry,greenMat)
+// const whitePlane = new THREE.Mesh(geometry,whiteMat)
+// const redPlane = new THREE.Mesh(geometry,redMat)
+// const orangePlane = new THREE.Mesh(geometry,orangeMat)
+// const bluePlane = new THREE.Mesh(geometry,blueMat)
+// const yellowPlane = new THREE.Mesh(geometry,yellowMat)
+// const greenPlane = new THREE.Mesh(geometry,greenMat)
 // redPlane.material.side = THREE.DoubleSide;
 // whitePlane.material.side = THREE.DoubleSide;
 // orangePlane.material.side = THREE.DoubleSide;
@@ -50,122 +49,64 @@ const greenPlane = new THREE.Mesh(geometry,greenMat)
 // Positioning
 const ntyDegrees = 1.5708;
 let cube = new THREE.Group()
-let redSide = new THREE.Group()
-cube.add(redSide)
+let stickers = []
 for (let posX = -1; posX <= 1; posX++) {
     for (let posY = -1; posY <= 1; posY++) {
         for (let posZ = -1; posZ <= 1; posZ++) {
 
-
-            // if  (posX === 0 && posY === 0 && posZ === 0) continue;
-
-            let newPlane = new THREE.Mesh();
-
-
             if (posY === -1) {
-                newPlane = new THREE.Mesh(geometry,whiteMat)
+                let newPlane = new THREE.Mesh(geometry,whiteMat)
                 newPlane.rotation.x = ntyDegrees
                 newPlane.position.set(posX,posY - .5,posZ)
                 cube.add(newPlane)
-                if (posX > 0) {
-                    redSide.add(newPlane)
-                }
-
+                stickers.push(newPlane)
             }
             if (posY === 1) {
-                newPlane = new THREE.Mesh(geometry,yellowMat)
+                let newPlane = new THREE.Mesh(geometry,yellowMat)
                 newPlane.rotation.x = -ntyDegrees
                 newPlane.position.set(posX,posY + .5,posZ)
                 cube.add(newPlane)
-                if (posX > 0) {
-                    redSide.add(newPlane)
-                }
-
+                stickers.push(newPlane)
             }
             if (posX === -1) {
-                newPlane = new THREE.Mesh(geometry,orangeMat)
+                let newPlane = new THREE.Mesh(geometry,redMat)
                 newPlane.rotation.y = -ntyDegrees
                 newPlane.position.set(posX -.5,posY,posZ)
                 cube.add(newPlane)
-
+                stickers.push(newPlane)
             }
             if (posX === 1) {
-                newPlane = new THREE.Mesh(geometry,redMat)
+                let newPlane = new THREE.Mesh(geometry,orangeMat)
                 newPlane.rotation.y = ntyDegrees
                 newPlane.position.set(posX + .5,posY,posZ)
                 cube.add(newPlane)
-                if (posX > 0) {
-                    redSide.add(newPlane)
-                }
-
+                stickers.push(newPlane)
             }
             if (posZ === -1) {
-                newPlane = new THREE.Mesh(geometry,blueMat)
+                let newPlane = new THREE.Mesh(geometry,blueMat)
                 newPlane.rotation.x = 2 * ntyDegrees
                 newPlane.position.set(posX,posY,posZ - .5)
                 cube.add(newPlane)
-                if (posX > 0) {
-                    redSide.add(newPlane)
-                }
-
+                stickers.push(newPlane)
             }
             if (posZ === 1) {
-                newPlane = new THREE.Mesh(geometry,greenMat)
+                let newPlane = new THREE.Mesh(geometry,greenMat)
                 newPlane.rotation.z = ntyDegrees
                 newPlane.position.set(posX,posY,posZ + .5)
                 cube.add(newPlane)
-                if (posX > 0) {
-                    redSide.add(newPlane)
-                }
-
+                stickers.push(newPlane)
             }
 
 
         }
     }
 }
-// scene.add(redSide)
+
+
+scramble(cube,stickers,stickers.length)
 scene.add(cube)
 
-// let face = new THREE.Group()
-//
-// for (let posX = -1; posX < 2; posX++) {
-//     for (let posY = -1; posY < 2; posY++) {
-//
-//         let newPlane = new THREE.Mesh(geometry, whiteMat)
-//         newPlane.position.set(posX, posY, 0);
-//         face.add(newPlane)
-//
-//     }
-// }
-// scene.add(face)
 
-// whitePlane.rotation.set(-1 * ntyDegrees, 0, 0)
-// whitePlane.position.set(0,-0.5,-0.5)
-// redPlane.rotation.set(0, ntyDegrees , 0)
-// let redCenter = redPlane.clone()
-// redPlane.position.set(0.5,0,-0.5)
-// redCenter.position.set(0.5,1,-1.5)
-// scene.add(redCenter)
-//
-// GROUPS
-// const corner = new THREE.Group()
-// corner.add(orangePlane)
-// corner.add(redPlane)
-// corner.add(whitePlane)
-//
-//
-// const corner2 = corner.clone()
-// corner2.position.set(0,2,-3)
-// corner2.rotation.x = 2 * ntyDegrees
-//
-// const redFace = new THREE.Group()
-// redFace.add(corner2)
-// redFace.add(redCenter)
-//
-// redFace.add(corner)
-//
-// scene.add(redFace)
 
 // Lights
 const ambLight = new THREE.AmbientLight(0xffffff,.2)
@@ -206,7 +147,7 @@ window.addEventListener('resize', () =>
 const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 0.1, 100)
 camera.position.x = 0
 camera.position.y = 0
-camera.position.z = 2
+camera.position.z = 6
 scene.add(camera)
 
 // Controls
@@ -238,11 +179,11 @@ const tick = () =>
     // Update objects
     cube.rotation.x = -.2 * elapsedTime
     cube.rotation.y = -.2 * elapsedTime
-    redSide.rotation.x = .2 * elapsedTime
-    // corner.rotation.y = .1 * elapsedTime
+
+
 
     // Update Orbital Controls
-    // controls.update()
+    controls.update()
 
     // Render
     renderer.render(scene, camera)
