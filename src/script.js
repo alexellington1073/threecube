@@ -2,7 +2,7 @@ import './style.css'
 import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import * as dat from 'dat.gui'
-import {scramble, sRotate} from "./solver";
+import {scramble, sRotate} from "./scrambler";
 
 // Debug
 
@@ -54,49 +54,80 @@ for (let posX = -1; posX <= 1; posX++) {
     for (let posY = -1; posY <= 1; posY++) {
         for (let posZ = -1; posZ <= 1; posZ++) {
 
+            let zeroCount = 0
+            if (posX === 0) zeroCount++
+            if (posY === 0) zeroCount++
+            if (posZ === 0) zeroCount++
+
+
+
+            //TODO : oh no
             if (posY === -1) {
                 let newPlane = new THREE.Mesh(geometry,whiteMat)
                 newPlane.rotation.x = ntyDegrees
                 newPlane.position.set(posX,posY - .5,posZ)
+                newPlane.name = "white"
                 cube.add(newPlane)
                 stickers.push(newPlane)
+                if (zeroCount === 0) newPlane.name += " corner"
+                if (zeroCount === 1) newPlane.name +=  " edge"
+                if (zeroCount === 2) newPlane.name += " center"
             }
             if (posY === 1) {
                 let newPlane = new THREE.Mesh(geometry,yellowMat)
                 newPlane.rotation.x = -ntyDegrees
                 newPlane.position.set(posX,posY + .5,posZ)
+                newPlane.name = "yellow"
                 cube.add(newPlane)
                 stickers.push(newPlane)
+                if (zeroCount === 0) newPlane.name += " corner"
+                if (zeroCount === 1) newPlane.name +=  " edge"
+                if (zeroCount === 2) newPlane.name += " center"
             }
             if (posX === -1) {
                 let newPlane = new THREE.Mesh(geometry,redMat)
                 newPlane.rotation.y = -ntyDegrees
                 newPlane.position.set(posX -.5,posY,posZ)
+                newPlane.name = "red"
                 cube.add(newPlane)
                 stickers.push(newPlane)
+                if (zeroCount === 0) newPlane.name += " corner"
+                if (zeroCount === 1) newPlane.name +=  " edge"
+                if (zeroCount === 2) newPlane.name += " center"
             }
             if (posX === 1) {
                 let newPlane = new THREE.Mesh(geometry,orangeMat)
                 newPlane.rotation.y = ntyDegrees
                 newPlane.position.set(posX + .5,posY,posZ)
+                newPlane.name = "orange"
                 cube.add(newPlane)
                 stickers.push(newPlane)
+                if (zeroCount === 0) newPlane.name += " corner"
+                if (zeroCount === 1) newPlane.name +=  " edge"
+                if (zeroCount === 2) newPlane.name += " center"
             }
             if (posZ === -1) {
                 let newPlane = new THREE.Mesh(geometry,blueMat)
                 newPlane.rotation.x = 2 * ntyDegrees
                 newPlane.position.set(posX,posY,posZ - .5)
+                newPlane.name = "blue"
                 cube.add(newPlane)
                 stickers.push(newPlane)
+                if (zeroCount === 0) newPlane.name += " corner"
+                if (zeroCount === 1) newPlane.name +=  " edge"
+                if (zeroCount === 2) newPlane.name += " center"
             }
             if (posZ === 1) {
                 let newPlane = new THREE.Mesh(geometry,greenMat)
                 newPlane.rotation.z = ntyDegrees
                 newPlane.position.set(posX,posY,posZ + .5)
+                newPlane.name = "green"
                 cube.add(newPlane)
                 stickers.push(newPlane)
+                if (zeroCount === 0) newPlane.name += " corner"
+                if (zeroCount === 1) newPlane.name +=  " edge"
+                if (zeroCount === 2) newPlane.name += " center"
             }
-
 
         }
     }
@@ -105,6 +136,14 @@ for (let posX = -1; posX <= 1; posX++) {
 
 scramble(cube,stickers,stickers.length)
 scene.add(cube)
+console.log(stickers)
+
+//TODO implement
+// get side and rotation
+
+// let rotSide = getNextRotSide();
+// let rotSide =
+// let targetQuat = getNextTargetQuat();
 
 
 
@@ -173,12 +212,25 @@ const clock = new THREE.Clock()
 
 const tick = () =>
 {
+    const speed = 2
 
     const elapsedTime = clock.getElapsedTime()
+    const delta = clock.getDelta()
 
     // Update objects
-    cube.rotation.x = -.2 * elapsedTime
-    cube.rotation.y = -.2 * elapsedTime
+    // cube.rotation.x = -.2 * elapsedTime
+    // cube.rotation.y = -.2 * elapsedTime
+
+
+
+
+    // turn sides
+    // if ( ! rotSide.quaternion.equals(targetQuat)) {
+    //
+    //     const step = speed * delta;
+    //     mesh.quaternion.rotateTowards( targetQuat, step );
+    //
+    // }
 
 
 
