@@ -3,6 +3,7 @@ import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import * as dat from 'dat.gui'
 import {scramble, sRotate} from "./scrambler";
+import {solve} from "./solver";
 
 // Debug
 
@@ -69,9 +70,6 @@ for (let posX = -1; posX <= 1; posX++) {
                 newPlane.name = "white"
                 cube.add(newPlane)
                 stickers.push(newPlane)
-                if (zeroCount === 0) newPlane.name += " corner"
-                if (zeroCount === 1) newPlane.name +=  " edge"
-                if (zeroCount === 2) newPlane.name += " center"
             }
             if (posY === 1) {
                 let newPlane = new THREE.Mesh(geometry,yellowMat)
@@ -80,9 +78,6 @@ for (let posX = -1; posX <= 1; posX++) {
                 newPlane.name = "yellow"
                 cube.add(newPlane)
                 stickers.push(newPlane)
-                if (zeroCount === 0) newPlane.name += " corner"
-                if (zeroCount === 1) newPlane.name +=  " edge"
-                if (zeroCount === 2) newPlane.name += " center"
             }
             if (posX === -1) {
                 let newPlane = new THREE.Mesh(geometry,redMat)
@@ -91,9 +86,6 @@ for (let posX = -1; posX <= 1; posX++) {
                 newPlane.name = "red"
                 cube.add(newPlane)
                 stickers.push(newPlane)
-                if (zeroCount === 0) newPlane.name += " corner"
-                if (zeroCount === 1) newPlane.name +=  " edge"
-                if (zeroCount === 2) newPlane.name += " center"
             }
             if (posX === 1) {
                 let newPlane = new THREE.Mesh(geometry,orangeMat)
@@ -102,9 +94,6 @@ for (let posX = -1; posX <= 1; posX++) {
                 newPlane.name = "orange"
                 cube.add(newPlane)
                 stickers.push(newPlane)
-                if (zeroCount === 0) newPlane.name += " corner"
-                if (zeroCount === 1) newPlane.name +=  " edge"
-                if (zeroCount === 2) newPlane.name += " center"
             }
             if (posZ === -1) {
                 let newPlane = new THREE.Mesh(geometry,blueMat)
@@ -113,9 +102,6 @@ for (let posX = -1; posX <= 1; posX++) {
                 newPlane.name = "blue"
                 cube.add(newPlane)
                 stickers.push(newPlane)
-                if (zeroCount === 0) newPlane.name += " corner"
-                if (zeroCount === 1) newPlane.name +=  " edge"
-                if (zeroCount === 2) newPlane.name += " center"
             }
             if (posZ === 1) {
                 let newPlane = new THREE.Mesh(geometry,greenMat)
@@ -124,9 +110,6 @@ for (let posX = -1; posX <= 1; posX++) {
                 newPlane.name = "green"
                 cube.add(newPlane)
                 stickers.push(newPlane)
-                if (zeroCount === 0) newPlane.name += " corner"
-                if (zeroCount === 1) newPlane.name +=  " edge"
-                if (zeroCount === 2) newPlane.name += " center"
             }
 
         }
@@ -144,6 +127,8 @@ console.log(stickers)
 // let rotSide = getNextRotSide();
 // let rotSide =
 // let targetQuat = getNextTargetQuat();
+
+solve(stickers)
 
 
 
