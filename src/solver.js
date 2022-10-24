@@ -1,12 +1,10 @@
 import * as THREE from "three";
 
-export function solve(stickers,cube) {
+export function solve(stickers, cube) {
 
     // const startSide = getStartSide(stickers)
 
     makeCross(stickers)
-
-
 
 
     //needs testing
@@ -18,7 +16,7 @@ export function solve(stickers,cube) {
         let edgeStickers = []
 
         //cache all white edge stickers
-        for ( let i = 0; i < stickers.length; i ++) {
+        for (let i = 0; i < stickers.length; i++) {
             const posArr = stickers[i].position.toArray()
             const name = stickers[i].name
 
@@ -58,31 +56,35 @@ export function solve(stickers,cube) {
             //piece on top case
             if (posArr[1] == 1.5) {
                 //rotate to correct side, rotate down
+                let targetCenterPos = getTargetCenter(stickers, sideColor.name)
+                let targetSide
+                let oppSide
+                for (let j = 0; j < targetCenterPos.length; j++) {
+                    if (targetCenterPos[j] != 0) targetSide = j;
+                }
+                if (targetSide = 0) oppSide = 2
+                else oppSide = 0
+                console.log(sideColor.position.toArray()[targetSide], targetCenterPos[targetSide])
+                if (sideColor.position.toArray()[targetSide] != targetCenterPos[targetSide]) {
 
-                    let targetCenterPos = getTargetCenter(stickers, sideColor.name)
-                    let targetSide
-                    for (let j = 0; j < targetCenterPos.length; j++) {
-                        if (targetCenterPos[i] != 0) targetSide = j;
-                    }
-                    if (posArr[i] != targetCenterPos[i]) {
 
-                    }
+                }
             }
         }
     }
 }
 
-export function makeRotSide(cube,stickers,xyz,pos) {
+export function makeRotSide(cube, stickers, xyz, pos) {
     let length = stickers.length
     let side = new THREE.Group()
     cube.attach(side)
-    for(let i = 0; i < length; i++) {
+    for (let i = 0; i < length; i++) {
         if (pos == 1) {
-            if (stickers[i].position.toArray()[xyz] > 0) {
+            if (stickers[i].position.toArray()[xyz] > 0.01) {
                 side.attach(stickers[i])
             }
 
-        } else if (stickers[i].position.toArray()[xyz] < 0) {
+        } else if (stickers[i].position.toArray()[xyz] < -0.01) {
             side.attach(stickers[i])
         }
     }
@@ -96,8 +98,11 @@ export function removeSide(stickers, cube) { //make while loop too lazy rn
 }
 
 function getTargetCenter(stickers, name) {
-    for (let i  = 0; i < stickers.length; i++) {
-        if (getZeroCount(stickers[i].position.toArray()) == 2 && stickers[i].name == name) return stickers[i].position.toArray()
+    for (let i = 0; i < stickers.length; i++) {
+        if (getZeroCount(stickers[i].position.toArray()) == 2 && stickers[i].name == name) {
+            return stickers[i].position.toArray()
+        }
+
     }
 }
 
@@ -109,7 +114,7 @@ function getZeroCount(positionArray) {
     return zeroCount
 }
 
-function getPiece (stickers, posArr, name) {
+function getPiece(stickers, posArr, name) {
     let piece = []
     let adjustedPos = []
 

@@ -4,12 +4,18 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import * as dat from 'dat.gui'
 import {scramble, sRotate} from "./scrambler";
 import {makeRotSide, removeSide, solve} from "./solver";
+import Stats from 'three/addons/libs/stats.module.js';
+import {smoothstep} from "three/nodes";
 
 // Debug
 
 
 // Canvas
 const canvas = document.querySelector('canvas.webgl')
+
+//Stats
+const stats = new Stats()
+container.appendChild(stats.dom)
 
 // Scene
 const scene = new THREE.Scene()
@@ -119,7 +125,7 @@ for (let posX = -1; posX <= 1; posX++) {
 
 scramble(cube,stickers,stickers.length)
 
-console.log(stickers)
+// console.log(stickers)
 
 //TODO implement
 // get side and rotation
@@ -193,15 +199,17 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
  * Animate
  */
 
-const clock = new THREE.Clock()
+const deltaClock = new THREE.Clock()
+const elapsClock = new THREE.Clock()
 
-let sideQueue = [1] //xyz by array, 0, 1, or 2
-let posQueue = [1] //-1 or 1
-let clockwiseQueue = [1] //-1 or 1
+let sideQueue = [] //xyz by array, 0, 1, or 2
+let posQueue = [] //-1 or 1
+let clockwiseQueue = [] //-1 or 1
 let readyForNextTurn = true
 let side = new THREE.Group()
 // scene.add(side)
 scene.add(cube)
+
 
 let targetQuat = new THREE.Quaternion()
 
@@ -209,29 +217,31 @@ generateNextTurn(stickers,cube)
 
 const tick = () =>
 {
-    const elapsedTime = clock.getElapsedTime()
-    const speed = 2
-    const delta = clock.getDelta()
+    const elapsedTime = elapsClock.getElapsedTime()
+    const speed = 1.15
+    const delta = deltaClock.getDelta()
 
-    // Update objects
-    // cube.rotation.x = -.2 * elapsedTime
-    // cube.rotation.y = -.2 * elapsedTime
+    // // Update objects
+    // cube.rotation.x = .2 * elapsedTime
+    // cube.rotation.y = .2 * elapsedTime
 
 
 
 
     // turn sides
     if ( ! side.quaternion.equals(targetQuat)) {
-
         const step = speed * delta;
         side.quaternion.rotateTowards( targetQuat, step );
-
+    } else {
+        // cleanup()
+        // generateNextTurn()
     }
 
 
 
     // Update Orbital Controls
     controls.update()
+    stats.update()
 
     // Render
     renderer.render(scene, camera)
@@ -239,23 +249,46 @@ const tick = () =>
     // Call tick again on the next frame
     window.requestAnimationFrame(tick)
 }
+
 //TODO fix quat math
-function generateNextTurn(stickers,cube) {
-    side = makeRotSide(cube,stickers,sideQueue[0],posQueue[0])
-    console.log(side.quaternion)
+function generateNextTurn() {
+    if (sideQueue.length != 0) {
+        side = makeRotSide(cube, stickers, sideQueue[0], posQueue[0])
 
-    let axis = new THREE.Vector3
-    let arr = axis.toArray()
-    const angle = THREE.MathUtils.degToRad(clockwiseQueue[0] * 90)
-    arr[sideQueue[0]] = 1
-    axis = axis.fromArray(arr,angle)
+        let axis = new THREE.Vector3()
+        axis.setComponent(sideQueue[0], clockwiseQueue[0] * 1)
+        const angle = THREE.MathUtils.degToRad(clockwiseQueue[0] * 90)
 
-    targetQuat.setFromAxisAngle(axis,angle)
-    console.log(targetQuat)
+        targetQuat.setFromAxisAngle(axis, angle)
 
+        console.log(targetQuat)
+        console.log(side.quaternion)
+    }
 
-    // removeSide(stickers,cube)
-    setTimeout(generateNextTurn, 3000)
+}
+
+function cleanup() {
+
+        removeSide(stickers, cube)
+    side.removeFromParent()
+        sideQueue.shift()
+        posQueue.shift()
+        clockwiseQueue.shift()
+    clampStickers()
+        generateNextTurn(stickers, cube)
+
+}
+
+function clampStickers() {
+    for (let i = 0; i < stickers.length; i++) {
+        let newVec3 = stickers[i].position.toArray();
+        for (let k = 0; k < 3; k++) {
+            let value = newVec3[k]
+            value = Number.parseFloat(value).toFixed(2)
+            newVec3[k] = value
+        }
+        stickers[i].position.fromArray(newVec3)
+    }
 }
 
 tick()
