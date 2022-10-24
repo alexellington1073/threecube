@@ -66,7 +66,6 @@ export function scramble(cube ,stickerArray, length) {
         }
 
         sRotate(side, randomXYZ[i], clockWise[i])
-        console.log(randomXYZ[i], clockWise[i])
 
         for (let k = 0; k <= side.children.length; k++) {
             k = 0

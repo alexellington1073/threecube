@@ -3,7 +3,7 @@ import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import * as dat from 'dat.gui'
 import {scramble, sRotate} from "./scrambler";
-import {solve} from "./solver";
+import {makeRotSide, removeSide, solve} from "./solver";
 
 // Debug
 
@@ -118,7 +118,7 @@ for (let posX = -1; posX <= 1; posX++) {
 
 
 scramble(cube,stickers,stickers.length)
-scene.add(cube)
+
 console.log(stickers)
 
 //TODO implement
@@ -128,7 +128,7 @@ console.log(stickers)
 // let rotSide =
 // let targetQuat = getNextTargetQuat();
 
-solve(stickers)
+solve(stickers,cube)
 
 
 
@@ -195,11 +195,22 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 
 const clock = new THREE.Clock()
 
+let sideQueue = [1] //xyz by array, 0, 1, or 2
+let posQueue = [1] //-1 or 1
+let clockwiseQueue = [1] //-1 or 1
+let readyForNextTurn = true
+let side = new THREE.Group()
+// scene.add(side)
+scene.add(cube)
+
+let targetQuat = new THREE.Quaternion()
+
+generateNextTurn(stickers,cube)
+
 const tick = () =>
 {
-    const speed = 2
-
     const elapsedTime = clock.getElapsedTime()
+    const speed = 2
     const delta = clock.getDelta()
 
     // Update objects
@@ -210,12 +221,12 @@ const tick = () =>
 
 
     // turn sides
-    // if ( ! rotSide.quaternion.equals(targetQuat)) {
-    //
-    //     const step = speed * delta;
-    //     mesh.quaternion.rotateTowards( targetQuat, step );
-    //
-    // }
+    if ( ! side.quaternion.equals(targetQuat)) {
+
+        const step = speed * delta;
+        side.quaternion.rotateTowards( targetQuat, step );
+
+    }
 
 
 
@@ -227,6 +238,24 @@ const tick = () =>
 
     // Call tick again on the next frame
     window.requestAnimationFrame(tick)
+}
+//TODO fix quat math
+function generateNextTurn(stickers,cube) {
+    side = makeRotSide(cube,stickers,sideQueue[0],posQueue[0])
+    console.log(side.quaternion)
+
+    let axis = new THREE.Vector3
+    let arr = axis.toArray()
+    const angle = THREE.MathUtils.degToRad(clockwiseQueue[0] * 90)
+    arr[sideQueue[0]] = 1
+    axis = axis.fromArray(arr,angle)
+
+    targetQuat.setFromAxisAngle(axis,angle)
+    console.log(targetQuat)
+
+
+    // removeSide(stickers,cube)
+    setTimeout(generateNextTurn, 3000)
 }
 
 tick()
