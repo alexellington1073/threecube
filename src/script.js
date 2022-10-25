@@ -208,8 +208,6 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 
 const deltaClock = new THREE.Clock()
 const elapsClock = new THREE.Clock()
-
-
 let readyForNextTurn = true
 let side = new THREE.Group()
 // scene.add(side)
@@ -260,8 +258,7 @@ if (getCrossQueueSize() != 0 || getSideQueue().length == 0) genCrossMove()
     let angle
     if(getSideQueue().length != 0) {
         axis.setComponent(
-            getSideQueue()[0],
-            getClockwiseQueue()[0] * 1)
+            getSideQueue()[0],1)
 
         angle = THREE.MathUtils.degToRad(getClockwiseQueue()[0] * 90)
     }
