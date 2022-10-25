@@ -1,9 +1,19 @@
 import './style.css'
 import * as THREE from 'three'
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
+import {OrbitControls} from 'three/examples/jsm/controls/OrbitControls.js'
 import * as dat from 'dat.gui'
 import {scramble, sRotate} from "./scrambler";
-import {makeRotSide, removeSide, solve} from "./solver";
+import {
+    genCrossMove,
+    getClockwiseQueue,
+    getCrossQueueSize,
+    getPosQueue,
+    getSideQueue,
+    makeRotSide,
+    removeSide,
+    shiftQueues,
+    solve
+} from "./solver";
 import Stats from 'three/addons/libs/stats.module.js';
 import {smoothstep} from "three/nodes";
 
@@ -21,7 +31,7 @@ container.appendChild(stats.dom)
 const scene = new THREE.Scene()
 
 // Objects
-const geometry = new THREE.PlaneGeometry(1,1)
+const geometry = new THREE.PlaneGeometry(1, 1)
 
 // Materials
 const redMat = new THREE.MeshBasicMaterial()
@@ -67,52 +77,51 @@ for (let posX = -1; posX <= 1; posX++) {
             if (posZ === 0) zeroCount++
 
 
-
             //TODO : oh no
             if (posY === -1) {
-                let newPlane = new THREE.Mesh(geometry,whiteMat)
+                let newPlane = new THREE.Mesh(geometry, whiteMat)
                 newPlane.rotation.x = ntyDegrees
-                newPlane.position.set(posX,posY - .5,posZ)
+                newPlane.position.set(posX, posY - .5, posZ)
                 newPlane.name = "white"
                 cube.add(newPlane)
                 stickers.push(newPlane)
             }
             if (posY === 1) {
-                let newPlane = new THREE.Mesh(geometry,yellowMat)
+                let newPlane = new THREE.Mesh(geometry, yellowMat)
                 newPlane.rotation.x = -ntyDegrees
-                newPlane.position.set(posX,posY + .5,posZ)
+                newPlane.position.set(posX, posY + .5, posZ)
                 newPlane.name = "yellow"
                 cube.add(newPlane)
                 stickers.push(newPlane)
             }
             if (posX === -1) {
-                let newPlane = new THREE.Mesh(geometry,redMat)
+                let newPlane = new THREE.Mesh(geometry, redMat)
                 newPlane.rotation.y = -ntyDegrees
-                newPlane.position.set(posX -.5,posY,posZ)
+                newPlane.position.set(posX - .5, posY, posZ)
                 newPlane.name = "red"
                 cube.add(newPlane)
                 stickers.push(newPlane)
             }
             if (posX === 1) {
-                let newPlane = new THREE.Mesh(geometry,orangeMat)
+                let newPlane = new THREE.Mesh(geometry, orangeMat)
                 newPlane.rotation.y = ntyDegrees
-                newPlane.position.set(posX + .5,posY,posZ)
+                newPlane.position.set(posX + .5, posY, posZ)
                 newPlane.name = "orange"
                 cube.add(newPlane)
                 stickers.push(newPlane)
             }
             if (posZ === -1) {
-                let newPlane = new THREE.Mesh(geometry,blueMat)
+                let newPlane = new THREE.Mesh(geometry, blueMat)
                 newPlane.rotation.x = 2 * ntyDegrees
-                newPlane.position.set(posX,posY,posZ - .5)
+                newPlane.position.set(posX, posY, posZ - .5)
                 newPlane.name = "blue"
                 cube.add(newPlane)
                 stickers.push(newPlane)
             }
             if (posZ === 1) {
-                let newPlane = new THREE.Mesh(geometry,greenMat)
+                let newPlane = new THREE.Mesh(geometry, greenMat)
                 newPlane.rotation.z = ntyDegrees
-                newPlane.position.set(posX,posY,posZ + .5)
+                newPlane.position.set(posX, posY, posZ + .5)
                 newPlane.name = "green"
                 cube.add(newPlane)
                 stickers.push(newPlane)
@@ -123,7 +132,7 @@ for (let posX = -1; posX <= 1; posX++) {
 }
 
 
-scramble(cube,stickers,stickers.length)
+scramble(cube, stickers, stickers.length)
 
 // console.log(stickers)
 
@@ -134,12 +143,11 @@ scramble(cube,stickers,stickers.length)
 // let rotSide =
 // let targetQuat = getNextTargetQuat();
 
-solve(stickers,cube)
-
+solve(stickers, cube)
 
 
 // Lights
-const ambLight = new THREE.AmbientLight(0xffffff,.2)
+const ambLight = new THREE.AmbientLight(0xffffff, .2)
 const pointLight = new THREE.PointLight(0xffffff, 1)
 pointLight.position.x = 2
 pointLight.position.y = 3
@@ -155,8 +163,7 @@ const sizes = {
     height: window.innerHeight
 }
 
-window.addEventListener('resize', () =>
-{
+window.addEventListener('resize', () => {
     // Update sizes
     sizes.width = window.innerWidth
     sizes.height = window.innerHeight
@@ -191,7 +198,7 @@ const renderer = new THREE.WebGLRenderer({
     alpha: true,
     canvas: canvas
 })
-renderer.setClearColor( 0x000000, 0 );
+renderer.setClearColor(0x000000, 0);
 renderer.setSize(sizes.width, sizes.height)
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 
@@ -202,9 +209,7 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 const deltaClock = new THREE.Clock()
 const elapsClock = new THREE.Clock()
 
-let sideQueue = [] //xyz by array, 0, 1, or 2
-let posQueue = [] //-1 or 1
-let clockwiseQueue = [] //-1 or 1
+
 let readyForNextTurn = true
 let side = new THREE.Group()
 // scene.add(side)
@@ -213,10 +218,9 @@ scene.add(cube)
 
 let targetQuat = new THREE.Quaternion()
 
-generateNextTurn(stickers,cube)
+generateNextTurn(stickers, cube)
 
-const tick = () =>
-{
+const tick = () => {
     const elapsedTime = elapsClock.getElapsedTime()
     const speed = 1.15
     const delta = deltaClock.getDelta()
@@ -226,17 +230,14 @@ const tick = () =>
     // cube.rotation.y = .2 * elapsedTime
 
 
-
-
     // turn sides
-    if ( ! side.quaternion.equals(targetQuat)) {
+    if (!side.quaternion.equals(targetQuat)) {
         const step = speed * delta;
-        side.quaternion.rotateTowards( targetQuat, step );
+        side.quaternion.rotateTowards(targetQuat, step);
     } else {
-        // cleanup()
-        // generateNextTurn()
+        cleanup()
+        generateNextTurn()
     }
-
 
 
     // Update Orbital Controls
@@ -250,32 +251,32 @@ const tick = () =>
     window.requestAnimationFrame(tick)
 }
 
-//TODO fix quat math
+
 function generateNextTurn() {
-    if (sideQueue.length != 0) {
-        side = makeRotSide(cube, stickers, sideQueue[0], posQueue[0])
+if (getCrossQueueSize() != 0 || getSideQueue().length == 0) genCrossMove()
+    side = makeRotSide(cube, stickers, getSideQueue()[0], getPosQueue()[0])
+    let axis = new THREE.Vector3()
+    console.log(getSideQueue().length)
+    let angle
+    if(getSideQueue().length != 0) {
+        axis.setComponent(
+            getSideQueue()[0],
+            getClockwiseQueue()[0] * 1)
 
-        let axis = new THREE.Vector3()
-        axis.setComponent(sideQueue[0], clockwiseQueue[0] * 1)
-        const angle = THREE.MathUtils.degToRad(clockwiseQueue[0] * 90)
-
-        targetQuat.setFromAxisAngle(axis, angle)
-
-        console.log(targetQuat)
-        console.log(side.quaternion)
+        angle = THREE.MathUtils.degToRad(getClockwiseQueue()[0] * 90)
     }
+
+    targetQuat.setFromAxisAngle(axis, angle)
 
 }
 
 function cleanup() {
 
-        removeSide(stickers, cube)
+    removeSide(stickers, cube)
     side.removeFromParent()
-        sideQueue.shift()
-        posQueue.shift()
-        clockwiseQueue.shift()
+    shiftQueues()
     clampStickers()
-        generateNextTurn(stickers, cube)
+    // generateNextTurn(stickers, cube)
 
 }
 
@@ -290,5 +291,6 @@ function clampStickers() {
         stickers[i].position.fromArray(newVec3)
     }
 }
+
 
 tick()

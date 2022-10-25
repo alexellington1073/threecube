@@ -1,10 +1,17 @@
 import * as THREE from "three";
 
-export function solve(stickers, cube) {
+let sideQueue = [] //xyz by array, 0, 1, or 2
+let posQueue = [] //-1 or 1
+let clockwiseQueue = [] //-1 or 1
+let crossStickers = []
+let stickers
 
+
+export function solve(stickArr, cube) {
     // const startSide = getStartSide(stickers)
-
-    makeCross(stickers)
+    stickers = stickArr
+    setupCross(stickers)
+    crossStickers.shift()
 
 
     //needs testing
@@ -12,8 +19,7 @@ export function solve(stickers, cube) {
 
 
     //possibly need clamp after every move
-    function makeCross(stickers) {
-        let edgeStickers = []
+    function setupCross(stickers) {
 
         //cache all white edge stickers
         for (let i = 0; i < stickers.length; i++) {
@@ -21,58 +27,113 @@ export function solve(stickers, cube) {
             const name = stickers[i].name
 
             if (getZeroCount(posArr) == 1 && name === 'white') {
-                edgeStickers.push(stickers[i])
-            }
-        }
-
-
-        //while loop? recursion???
-        for (let i = 0; i < edgeStickers.length; i++) {
-            const posArr = edgeStickers[i].position.toArray()
-            let sideColor = getPiece(stickers, posArr, edgeStickers[i].name)[0]
-
-            //piece mis-oriented top case
-            if (posArr[1] == 1) {
-                //check if white edges directly underneath and side underneath and in correct position
-                //rotate current piece to side, then top and turn top
-                //undo up to 2 rotations if first check was true
-            }
-            //piece mis-oriented middle case
-            if (posArr[1] == 0) {
-                //check if white edge underneath and in correct position
-                //rotate current piece to top and turn top
-                //undo first rotation if first check was true
-
-            }
-
-            //piece on bottom case
-            if (posArr[1] == -1.5) {
-                //check if already in correct pos
-
-                //else rotate to top
-
-            }
-
-            //piece on top case
-            if (posArr[1] == 1.5) {
-                //rotate to correct side, rotate down
-                let targetCenterPos = getTargetCenter(stickers, sideColor.name)
-                let targetSide
-                let oppSide
-                for (let j = 0; j < targetCenterPos.length; j++) {
-                    if (targetCenterPos[j] != 0) targetSide = j;
-                }
-                if (targetSide = 0) oppSide = 2
-                else oppSide = 0
-                console.log(sideColor.position.toArray()[targetSide], targetCenterPos[targetSide])
-                if (sideColor.position.toArray()[targetSide] != targetCenterPos[targetSide]) {
-
-
-                }
+                crossStickers.push(stickers[i])
             }
         }
     }
+    // genCrossMove()
 }
+export function genCrossMove() {
+    const posArr = crossStickers[0].position.toArray()
+    let sideColor = getPiece(stickers, posArr, crossStickers[0].name)[0]
+    console.log(sideColor.name)
+
+    // while (edgeStickers.length > 0) {
+    //piece mis-oriented top case
+    if (posArr[1] == 1) {
+        posQueue.push(1);
+        clockwiseQueue.push(1);
+        sideQueue.push(1);
+        //check if white edges directly underneath and side underneath and in correct position
+        //rotate current piece to side, then top and turn top
+        //undo up to 2 rotations if first check was true
+    }
+    //piece mis-oriented middle case
+    if (posArr[1] == 0) {
+        posQueue.push(1);
+        clockwiseQueue.push(1);
+        sideQueue.push(1);
+        //check if white edge underneath and in correct position
+        //rotate current piece to top and turn top
+        //undo first rotation if first check was true
+
+    }
+
+    //piece on bottom case
+    if (posArr[1] == -1.5) {
+        posQueue.push(1);
+        clockwiseQueue.push(1);
+        sideQueue.push(1);
+        //check if already in correct pos
+
+        //else rotate to top
+
+    }
+
+    //piece on top case
+    if (posArr[1] == 1.5) {
+        //rotate to correct side, rotate down
+        let targetCenterPos = getTargetCenter(stickers, sideColor.name)
+        let targetSide
+        let oppSide
+        for (let j = 0; j < targetCenterPos.length; j++) {
+            if (targetCenterPos[j] != 0) targetSide = j;
+        }
+        if (targetSide == 0) oppSide = 2
+        else oppSide = 0
+        if (sideColor.position.toArray()[targetSide] != targetCenterPos[targetSide]) {
+            if (sideColor.position.toArray()[targetSide] == targetCenterPos[targetSide] * -1) {
+                posQueue.push(1);
+                // posQueue.push(1);
+                clockwiseQueue.push(1);
+                // clockwiseQueue.push(1);
+                // sideQueue.push(1);
+                sideQueue.push(1);
+                // posQueue.push(Math.trunc(targetCenterPos[targetSide]));
+                // posQueue.push(Math.trunc(targetCenterPos[targetSide]));
+                // clockwiseQueue.push(1);
+                // clockwiseQueue.push(1);
+                // sideQueue.push(targetSide);
+                // sideQueue.push(targetSide);
+                // crossStickers.shift()
+            }
+            // on side case
+            if (sideColor.position.toArray()[targetSide] == 0) {
+                //clockwise
+                if ((oppSide = 0
+                    && ((posArr[oppSide] == 1.5 && targetCenterPos[targetSide] == -1.5 )
+                    || (posArr[oppSide] == -1.5 && targetCenterPos[targetSide] == 1.5 )))
+                    || (oppSide = 2
+                        && ((posArr[oppSide] == -1.5 && targetCenterPos[targetSide] == -1.5 )
+                            || (posArr[oppSide] == 1.5 && targetCenterPos[targetSide] == 1.5 )))
+                    ) {
+                    clockwiseQueue.push(1)
+                    sideQueue.push(1)
+                    posQueue.push(1)
+
+                }
+                else {
+                    clockwiseQueue.push(-1)
+                    sideQueue.push(1)
+                    posQueue.push(1)
+                }
+            }
+
+        }
+        if (targetCenterPos[targetSide] == sideColor.position.toArray()[targetSide]) {
+            posQueue.push(Math.trunc(targetCenterPos[targetSide]));
+            posQueue.push(Math.trunc(targetCenterPos[targetSide]));
+            clockwiseQueue.push(1);
+            clockwiseQueue.push(1);
+            sideQueue.push(targetSide);
+            sideQueue.push(targetSide);
+            crossStickers.shift()
+        }
+        // already correct case
+    }
+    // crossStickers.shift()
+}
+
 
 export function makeRotSide(cube, stickers, xyz, pos) {
     let length = stickers.length
@@ -141,4 +202,26 @@ function getPiece(stickers, posArr, name) {
 
     }
 
+}
+
+export function getSideQueue() {
+    return sideQueue;
+}
+
+export function getClockwiseQueue() {
+    return clockwiseQueue;
+}
+
+export function getPosQueue() {
+    return posQueue;
+}
+
+export function shiftQueues() {
+    sideQueue.shift()
+    clockwiseQueue.shift()
+    posQueue.shift()
+}
+
+export function getCrossQueueSize() {
+    return crossStickers.length
 }

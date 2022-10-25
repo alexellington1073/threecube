@@ -50,19 +50,18 @@ export function scramble(cube ,stickerArray, length) {
     for (let i = 0; i < randomMoves; i++) {
 
 
-
         //make new side
         let side = new THREE.Group()
         for (let j = 0; j < length; j++) {
 
-                if (posNeg[i]) {
-                    if (stickerArray[j].position.toArray()[randomXYZ[i]] > 0.1) { // 0.1 because weird math, fix in sRotate
-                        side.attach(stickerArray[j])
-                    }
-
-                } else if (stickerArray[j].position.toArray()[randomXYZ[i]] < -0.1) {
+            if (posNeg[i]) {
+                if (stickerArray[j].position.toArray()[randomXYZ[i]] > 0.1) { // 0.1 because weird math, fix in sRotate
                     side.attach(stickerArray[j])
                 }
+
+            } else if (stickerArray[j].position.toArray()[randomXYZ[i]] < -0.1) {
+                side.attach(stickerArray[j])
+            }
         }
 
         sRotate(side, randomXYZ[i], clockWise[i])
