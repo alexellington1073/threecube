@@ -12,12 +12,6 @@ export function solve(stickArr, cube) {
     stickers = stickArr
     setupCross(stickers)
 
-
-    //needs testing
-    //returns sticker objects
-
-
-    //possibly need clamp after every move
     function setupCross(stickers) {
 
         //cache all white edge stickers
