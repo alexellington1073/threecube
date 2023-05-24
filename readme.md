@@ -1,17 +1,2 @@
-# Three.js Starter
-Courtesy of Bruno Simon of https://threejs-journey.xyz/
-
-## Setup
-Download [Node.js](https://nodejs.org/en/download/).
-Run this followed commands:
-
-``` bash
-# Install dependencies (only the first time)
-npm install
-
-# Run the local server at localhost:8080
-npm run dev
-
-# Build for production in the dist/ directory
-npm run build
-```
+## Three.js Rubkis Cube
+An attempt to translate my java model of a rubiks cube into three dimensions. The original goal was to generate a randomized cube and automatically solve it using the most basic cube algorithms, essentially an animation of a cube being solved. Never finished the solve, but I was able to roatate sides to my satisfaction. As it stands, it will only attempt to build the starting cross, and with a particularly lucky start, might even get there!
